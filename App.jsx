@@ -22,7 +22,15 @@ import {
   Eye,
   Printer,
   HeartHandshake,
-  Award
+  Award,
+  Camera,
+  Zap,
+  RotateCcw,
+  CloudUpload,
+  Mic,
+  MicOff,
+  Volume2,
+  Loader2
 } from 'lucide-react';
 
 // Translations Dictionary
@@ -33,7 +41,7 @@ const TRANSLATIONS = {
     pendingCount: 'Pending Portfolios',
     teacher: 'Teacher Rachel',
     bannerTitle: 'Quick Portfolio Workflow',
-    bannerDesc: 'Select a student with pending portfolios to open the ECDA template editor. Select photos from Monday cloud storage. Target creation speed: 5–10 mins per child.',
+    bannerDesc: 'Select a student with pending portfolios to open the ECDA template editor. Select photos from Monday cloud storage or snap live in-app photos. Target creation speed: 5–10 mins per child.',
     createNext: 'Create Next Portfolio',
     allStudents: 'All Students',
     pending: 'Pending',
@@ -52,10 +60,10 @@ const TRANSLATIONS = {
     publishBtn: 'Publish & Complete',
     studentSheet: 'Student Learning Portfolio Sheet',
     estimatedTime: 'Estimated time: ~5 mins',
-    primaryPhotoLabel: 'Primary Activity Photo (From Monday Cloud Library)',
-    changePhoto: 'Change Photo',
+    primaryPhotoLabel: 'Primary Activity Photo (From Cloud Library / In-App Camera)',
+    changePhoto: 'Change Photo / Snap New',
     selectPhoto: 'Select Activity Photo',
-    chooseFromFolder: 'Choose from Monday Art & Craft Folder',
+    chooseFromFolder: 'Choose from Monday Folder or Take In-App Photo',
     activityTitleLabel: 'Activity / Observation Title',
     obsDateLabel: 'Observation Date',
     learningAreaLabel: 'Learning Area(s)',
@@ -77,6 +85,7 @@ const TRANSLATIONS = {
     sortOldest: 'Sort: Oldest First',
     sortTitle: 'Sort: By Title',
     selectThisPhoto: 'Select Photo',
+    snapLivePhoto: 'Snap Live Photo',
     cancel: 'Cancel',
     closePreview: 'Close Preview',
     printExport: 'Print / Save as PDF',
@@ -84,6 +93,18 @@ const TRANSLATIONS = {
     previewTermHeader: 'Termly Child Learning Progress Update',
     centreHeadMessage: 'Message from the Centre Head',
     observedBy: 'Observed & written by',
+    cameraTitle: 'In-App Zero-Storage Camera',
+    cameraSub: 'Photos upload directly to cloud database. Never saved on teacher mobile.',
+    captureButton: 'Capture & Upload Photo',
+    flashAuto: 'Flash: Auto',
+    autoCompressionTag: 'Auto-compressed to < 3MB',
+    dictationTitle: 'Voice Narrator Snippet (Background Processing)',
+    dictationSub: 'Speak while background uploading to auto-attach observation notes',
+    startListening: 'Tap Mic to Start Voice Note',
+    stopListening: 'Stop Dictation',
+    listeningActive: 'Listening & Transcribing Voice Note...',
+    voiceSnippetLabel: 'Voice Narrative Snippet (Auto-Attaches to Portfolio):',
+    voiceSample: '"Lucas built a 5-block tower with Sarah today using green blocks and identified the shape independently."',
   },
   zh: {
     appTitle: '幼儿电子档案生成器',
@@ -91,7 +112,7 @@ const TRANSLATIONS = {
     pendingCount: '待完成档案',
     teacher: '张老师 (Teacher Rachel)',
     bannerTitle: '高效档案建档流程',
-    bannerDesc: '选择待建档的幼儿，即可打开双页标准化模板。直接关联周一云端相册，目标每位幼儿 5–10 分钟快速建档。',
+    bannerDesc: '选择待建档的幼儿，即可打开双页标准化模板。关联云端相册或直接使用应用内相机拍摄，目标每位幼儿 5–10 分钟快速建档。',
     createNext: '开始下一个档案',
     allStudents: '全部学生',
     pending: '待处理',
@@ -110,10 +131,10 @@ const TRANSLATIONS = {
     publishBtn: '发布并完成',
     studentSheet: '幼儿学习进展报告单',
     estimatedTime: '预计耗时：~5分钟',
-    primaryPhotoLabel: '主要活动照片（从周一云端相册选择）',
-    changePhoto: '更换照片',
+    primaryPhotoLabel: '主要活动照片（云端相册 / 应用内拍摄）',
+    changePhoto: '更换照片 / 现场拍摄',
     selectPhoto: '选择活动照片',
-    chooseFromFolder: '从周一美劳活动文件夹选择',
+    chooseFromFolder: '从周一文件夹选择或直接拍摄',
     activityTitleLabel: '活动 / 观察主题标题',
     obsDateLabel: '观察日期',
     learningAreaLabel: '学习领域',
@@ -135,6 +156,7 @@ const TRANSLATIONS = {
     sortOldest: '排序：较早优先',
     sortTitle: '排序：按标题',
     selectThisPhoto: '选择此照片',
+    snapLivePhoto: '现场拍摄照片',
     cancel: '取消',
     closePreview: '关闭预览',
     printExport: '打印 / 导出PDF',
@@ -142,6 +164,18 @@ const TRANSLATIONS = {
     previewTermHeader: '幼儿学习进展报告',
     centreHeadMessage: '园长的话',
     observedBy: '观察与记录者',
+    cameraTitle: '应用内零本地存储相机',
+    cameraSub: '照片直接实时上传至云端数据库，绝不保存在手机本地。',
+    captureButton: '拍摄并直接上传',
+    flashAuto: '闪光灯: 自动',
+    autoCompressionTag: '自动压缩至 < 3MB',
+    dictationTitle: '语音旁白听写 (后台同步处理)',
+    dictationSub: '边后台上传边口述观察旁白，自动生成活动片段描述',
+    startListening: '点击麦克风开始语音录入',
+    stopListening: '停止听写',
+    listeningActive: '正在听写并实时转写语音笔记...',
+    voiceSnippetLabel: '语音旁白片段 (将自动关联至幼儿观察报告):',
+    voiceSample: '“梁欧娜今天在角色扮演中非常投入，使用黏土拼读火字，说话声音清晰响亮。”',
   }
 };
 
@@ -216,10 +250,17 @@ export default function App() {
   const t = TRANSLATIONS[lang];
 
   const [students, setStudents] = useState(INITIAL_STUDENTS);
+  const [photoLibrary, setPhotoLibrary] = useState(INITIAL_PHOTO_LIBRARY);
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'pending', 'completed'
   const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'editor'
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  
+  // Voice Dictation state while snapping photo
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+  const [voiceSnippet, setVoiceSnippet] = useState('');
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   
   // 2-Page MOE Portfolio Form State
   const [activePage, setActivePage] = useState(1);
@@ -271,7 +312,7 @@ export default function App() {
     setActivePage(1);
     setPortfolioData({
       page1: {
-        photo: INITIAL_PHOTO_LIBRARY[0],
+        photo: photoLibrary[0],
         activityTitle: `${student.name} - Measuring Lengths & Quantities`,
         date: '17 Aug 2026',
         learningAreas: 'Numeracy (数概念)',
@@ -283,7 +324,7 @@ export default function App() {
         teacherName: 'Ms Gwendolyn'
       },
       page2: {
-        photo: INITIAL_PHOTO_LIBRARY[2],
+        photo: photoLibrary[2],
         activityTitle: `消防员与识字 - ${student.chineseName}`,
         date: '18 Aug 2026',
         learningAreas: '语言与书写能力 (Language & Literacy)',
@@ -299,19 +340,78 @@ export default function App() {
   };
 
   const openPhotoLibrary = (slot) => {
-    setTargetPhotoSlot(slot);
+    setTargetPhotoSlot(slot || 'page1');
     setIsPhotoModalOpen(true);
   };
 
+  const openDirectCamera = (slot) => {
+    setTargetPhotoSlot(slot || 'page1');
+    setVoiceSnippet('');
+    setIsRecordingVoice(false);
+    setIsCameraOpen(true);
+  };
+
   const handleSelectPhoto = (photo) => {
+    const slot = targetPhotoSlot || 'page1';
     setPortfolioData(prev => ({
       ...prev,
-      [targetPhotoSlot]: {
-        ...prev[targetPhotoSlot],
+      [slot]: {
+        ...prev[slot],
         photo: photo
       }
     }));
     setIsPhotoModalOpen(false);
+  };
+
+  // Toggle voice dictation simulation
+  const toggleVoiceRecording = () => {
+    if (!isRecordingVoice) {
+      setIsRecordingVoice(true);
+      setTimeout(() => {
+        setVoiceSnippet(t.voiceSample);
+        setIsRecordingVoice(false);
+      }, 3000);
+    } else {
+      setIsRecordingVoice(false);
+    }
+  };
+
+  // Simulate snapping photo inside app camera (Direct to cloud with voice narration)
+  const handleSnapInAppPhoto = () => {
+    setIsUploadingPhoto(true);
+
+    setTimeout(() => {
+      const slot = targetPhotoSlot || 'page1';
+      const newPhoto = {
+        id: `p_${Date.now()}`,
+        title: `${selectedStudent?.name || 'Child'} Live Capture - ${voiceSnippet ? 'With Voice Note' : 'Activity'}`,
+        label: slot === 'page1' ? 'Numeracy' : 'Chinese Language',
+        day: 'Today',
+        date: 'Today',
+        studentId: selectedStudent?.id || 's1',
+        url: 'https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=600&auto=format&fit=crop&q=80'
+      };
+
+      setPhotoLibrary(prev => [newPhoto, ...prev]);
+
+      // Auto attach voice snippet to context notes if available
+      setPortfolioData(prev => ({
+        ...prev,
+        [slot]: {
+          ...prev[slot],
+          photo: newPhoto,
+          context: voiceSnippet ? `${prev[slot].context}\n\n[Voice Note Narrative]: ${voiceSnippet}` : prev[slot].context
+        }
+      }));
+
+      setIsUploadingPhoto(false);
+      setIsCameraOpen(false);
+      setIsPhotoModalOpen(false);
+      alert(lang === 'zh' 
+        ? '照片已成功拍摄并自动异步上传至云端相册！语音描述已附加至观察记录中。' 
+        : 'Photo snapped and uploaded directly to cloud! Voice narrative auto-attached to observation notes.'
+      );
+    }, 1200);
   };
 
   const handleSavePortfolio = (markComplete = false) => {
@@ -329,7 +429,7 @@ export default function App() {
     }
   };
 
-  const filteredPhotos = INITIAL_PHOTO_LIBRARY
+  const filteredPhotos = photoLibrary
     .filter(photo => {
       const matchesSearch = photo.title.toLowerCase().includes(photoSearch.toLowerCase()) || 
                             photo.label.toLowerCase().includes(photoSearch.toLowerCase()) ||
@@ -358,7 +458,16 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            {/* Snap Live Photo Quick Action Button outside on main page */}
+            <button
+              onClick={() => openDirectCamera('page1')}
+              className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow-sm"
+            >
+              <Camera className="w-4 h-4" />
+              <span className="hidden sm:inline-block">{t.snapLivePhoto}</span>
+            </button>
+
             {/* Language Switcher */}
             <button
               onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
@@ -368,9 +477,9 @@ export default function App() {
               <span>{lang === 'en' ? '中文 (Simplified)' : 'English'}</span>
             </button>
 
-            <div className="h-4 w-[1px] bg-slate-200"></div>
+            <div className="h-4 w-[1px] bg-slate-200 hidden sm:block"></div>
 
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+            <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
               <Clock className="w-3.5 h-3.5 mr-1" />
               {pendingCount} {t.pendingCount}
             </span>
@@ -379,7 +488,7 @@ export default function App() {
               <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-semibold flex items-center justify-center text-xs border border-indigo-200">
                 TR
               </div>
-              <span className="text-xs font-medium text-slate-700 hidden sm:inline-block">{t.teacher}</span>
+              <span className="text-xs font-medium text-slate-700 hidden lg:inline-block">{t.teacher}</span>
             </div>
           </div>
         </div>
@@ -402,16 +511,27 @@ export default function App() {
                   {t.bannerDesc}
                 </p>
               </div>
-              <button 
-                onClick={() => {
-                  const firstPending = students.find(s => s.status === 'pending') || students[0];
-                  handleStartPortfolio(firstPending);
-                }}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm shadow-sm transition flex items-center justify-center space-x-2 shrink-0 self-start md:self-auto"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>{t.createNext}</span>
-              </button>
+
+              <div className="flex items-center space-x-2 shrink-0 self-start md:self-auto">
+                <button
+                  onClick={() => openDirectCamera('page1')}
+                  className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-3.5 py-2.5 rounded-xl font-semibold text-xs shadow-sm transition flex items-center space-x-1.5"
+                >
+                  <Camera className="w-4 h-4 text-amber-300" />
+                  <span>{t.snapLivePhoto}</span>
+                </button>
+
+                <button 
+                  onClick={() => {
+                    const firstPending = students.find(s => s.status === 'pending') || students[0];
+                    handleStartPortfolio(firstPending);
+                  }}
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-semibold text-xs shadow-sm transition flex items-center space-x-1.5"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>{t.createNext}</span>
+                </button>
+              </div>
             </div>
 
             {/* Filter Tabs */}
@@ -557,6 +677,13 @@ export default function App() {
 
               <div className="flex items-center space-x-2">
                 <button
+                  onClick={() => openDirectCamera(activePage === 1 ? 'page1' : 'page2')}
+                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition flex items-center space-x-1 shadow-sm"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>{t.snapLivePhoto}</span>
+                </button>
+                <button
                   onClick={() => handleSavePortfolio(false)}
                   className="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition flex items-center space-x-1"
                 >
@@ -621,7 +748,7 @@ export default function App() {
                               alt="Activity" 
                               className="w-full h-52 object-cover"
                             />
-                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center space-x-2">
                               <button 
                                 onClick={() => openPhotoLibrary('page1')}
                                 className="bg-white text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg shadow hover:bg-slate-100 transition flex items-center space-x-1"
@@ -792,7 +919,7 @@ export default function App() {
                               alt="Activity" 
                               className="w-full h-52 object-cover"
                             />
-                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center space-x-2">
                               <button 
                                 onClick={() => openPhotoLibrary('page2')}
                                 className="bg-white text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg shadow hover:bg-slate-100 transition flex items-center space-x-1"
@@ -963,7 +1090,7 @@ export default function App() {
         )}
       </main>
 
-      {/* FULL PORTFOLIO PREVIEW MODAL (STYLED LIKE THE OFFICIAL MOE / ECDA DOCUMENT) */}
+      {/* FULL PORTFOLIO PREVIEW MODAL */}
       {isPreviewOpen && selectedStudent && (
         <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 overflow-y-auto">
           <div className="bg-slate-100 w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-300 flex flex-col max-h-[92vh] overflow-hidden my-auto">
@@ -994,7 +1121,7 @@ export default function App() {
             {/* Printable Portfolio Pages Container */}
             <div className="p-4 sm:p-8 overflow-y-auto space-y-8 flex-1 bg-slate-200/80">
               
-              {/* PAGE 1: COVER PAGE (MOE Kindergarten Style) */}
+              {/* PAGE 1: COVER PAGE */}
               <div className="bg-white border border-slate-300 rounded-xl p-8 sm:p-12 shadow-sm min-h-[700px] flex flex-col justify-between text-slate-800 relative">
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
@@ -1025,7 +1152,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Message from Centre Head */}
                 <div className="bg-slate-50 rounded-xl p-5 border border-slate-200 text-xs leading-relaxed text-slate-600 space-y-2">
                   <p className="font-bold text-slate-800">{t.centreHeadMessage}:</p>
                   <p>
@@ -1035,7 +1161,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* PAGE 2: TERM 1 UPDATE (Numeracy / English) */}
+              {/* PAGE 2: TERM 1 UPDATE */}
               <div className="bg-white border border-slate-300 rounded-xl p-6 sm:p-10 shadow-sm min-h-[700px] flex flex-col justify-between space-y-6">
                 <div>
                   <div className="border-b-2 border-teal-500 pb-3 flex justify-between items-end">
@@ -1046,7 +1172,6 @@ export default function App() {
                     <span className="text-xs font-semibold text-slate-500">{selectedStudent.name} ({selectedStudent.class})</span>
                   </div>
 
-                  {/* Photo & Details Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     {portfolioData.page1.photo && (
                       <div>
@@ -1075,7 +1200,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Context & Interpretation */}
                   <div className="mt-6 space-y-4 text-xs">
                     <div>
                       <h4 className="font-bold text-slate-900 border-l-4 border-teal-500 pl-2 mb-1">Context / 情境:</h4>
@@ -1111,7 +1235,6 @@ export default function App() {
                     <span className="text-xs font-semibold text-slate-500">{selectedStudent.chineseName} ({selectedStudent.class})</span>
                   </div>
 
-                  {/* Photo & Details Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     {portfolioData.page2.photo && (
                       <div>
@@ -1140,7 +1263,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Context & Analysis */}
                   <div className="mt-6 space-y-4 text-xs">
                     <div>
                       <h4 className="font-bold text-slate-900 border-l-4 border-indigo-500 pl-2 mb-1">观察记录 (Context):</h4>
@@ -1167,7 +1289,6 @@ export default function App() {
 
             </div>
 
-            {/* Preview Modal Footer */}
             <div className="p-4 border-t border-slate-200 bg-white flex justify-between items-center shrink-0">
               <span className="text-xs text-slate-500">Official e-Portfolio Document Ready for Distribution</span>
               <button
@@ -1193,12 +1314,21 @@ export default function App() {
                 <h3 className="text-base font-bold text-slate-900">{t.libraryTitle}</h3>
                 <p className="text-xs text-slate-500">{t.librarySub}</p>
               </div>
-              <button 
-                onClick={() => setIsPhotoModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-200/50 transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => openDirectCamera(targetPhotoSlot)}
+                  className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow-sm"
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>{t.snapLivePhoto}</span>
+                </button>
+                <button 
+                  onClick={() => setIsPhotoModalOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-200/50 transition"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Filter, Search & Sort Bar */}
@@ -1286,6 +1416,117 @@ export default function App() {
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* SIMULATED IN-APP CAMERA MODAL WITH VOICE NARRATOR */}
+      {isCameraOpen && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 w-full max-w-lg rounded-3xl overflow-hidden border border-slate-800 flex flex-col text-white shadow-2xl">
+            {/* Camera Header */}
+            <div className="p-4 bg-slate-950/80 flex items-center justify-between border-b border-slate-800">
+              <div>
+                <h3 className="text-sm font-bold flex items-center gap-1.5 text-indigo-400">
+                  <Camera className="w-4 h-4" />
+                  {t.cameraTitle}
+                </h3>
+                <p className="text-[10px] text-slate-400 mt-0.5">{t.cameraSub}</p>
+              </div>
+              <button 
+                onClick={() => setIsCameraOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Simulated Live Viewport */}
+            <div className="relative bg-slate-950 h-72 flex flex-col items-center justify-center p-6 text-center overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=600&auto=format&fit=crop&q=80"
+                alt="Live Camera Stream"
+                className="absolute inset-0 w-full h-full object-cover opacity-80"
+              />
+              
+              {/* Overlays */}
+              <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full text-[10px] font-semibold text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                <CloudUpload className="w-3 h-3" />
+                <span>Zero Local Storage Active</span>
+              </div>
+
+              <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full text-[10px] font-semibold text-slate-300 border border-slate-700 flex items-center gap-1">
+                <Zap className="w-3 h-3 text-amber-400" />
+                <span>{t.flashAuto}</span>
+              </div>
+
+              <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full text-[10px] font-semibold text-indigo-300 border border-indigo-500/30">
+                {t.autoCompressionTag}
+              </div>
+            </div>
+
+            {/* Voice Dictation Snippet Section while uploading */}
+            <div className="p-4 bg-slate-950/90 border-t border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                    <Mic className="w-3.5 h-3.5" />
+                    {t.dictationTitle}
+                  </h4>
+                  <p className="text-[10px] text-slate-400">{t.dictationSub}</p>
+                </div>
+                <button
+                  onClick={toggleVoiceRecording}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+                    isRecordingVoice 
+                      ? 'bg-red-500 animate-pulse text-white' 
+                      : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                  }`}
+                >
+                  {isRecordingVoice ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                  <span>{isRecordingVoice ? t.stopListening : t.startListening}</span>
+                </button>
+              </div>
+
+              {isRecordingVoice && (
+                <div className="flex items-center space-x-2 text-xs text-amber-400 bg-amber-950/40 p-2 rounded-lg border border-amber-800/40 animate-pulse">
+                  <Volume2 className="w-4 h-4 shrink-0" />
+                  <span>{t.listeningActive}</span>
+                </div>
+              )}
+
+              {voiceSnippet && (
+                <div className="bg-slate-900 p-2.5 rounded-lg border border-indigo-500/30 text-xs">
+                  <span className="font-semibold text-indigo-300 block text-[10px] mb-0.5">{t.voiceSnippetLabel}</span>
+                  <p className="text-slate-200 italic">{voiceSnippet}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Camera Capture Action Controls */}
+            <div className="p-5 bg-slate-950 flex flex-col items-center gap-3 border-t border-slate-800">
+              <p className="text-xs text-slate-400">
+                Target Child: <span className="text-indigo-400 font-bold">{selectedStudent?.name || 'Ona Neo'}</span> ({targetPhotoSlot === 'page1' ? 'Page 1 - Numeracy' : 'Page 2 - Chinese'})
+              </p>
+
+              <button
+                disabled={isUploadingPhoto}
+                onClick={handleSnapInAppPhoto}
+                className="w-16 h-16 rounded-full bg-white border-4 border-indigo-500 hover:scale-105 active:scale-95 transition shadow-lg flex items-center justify-center text-indigo-600 disabled:opacity-50"
+              >
+                {isUploadingPhoto ? (
+                  <Loader2 className="w-7 h-7 animate-spin text-indigo-600" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 flex items-center justify-center text-white">
+                    <Camera className="w-6 h-6" />
+                  </div>
+                )}
+              </button>
+
+              <span className="text-[11px] font-bold text-slate-300">
+                {isUploadingPhoto ? 'Uploading directly to cloud...' : t.captureButton}
+              </span>
+            </div>
           </div>
         </div>
       )}
