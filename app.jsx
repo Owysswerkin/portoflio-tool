@@ -1,0 +1,1295 @@
+import React, { useState } from 'react';
+import { 
+  Sparkles, 
+  Search, 
+  Filter, 
+  Image as ImageIcon, 
+  CheckCircle2, 
+  Clock, 
+  User, 
+  ArrowLeft, 
+  Plus, 
+  Save, 
+  Check, 
+  FileText, 
+  Calendar, 
+  ChevronRight,
+  BookOpen,
+  Tag,
+  SlidersHorizontal,
+  X,
+  Globe,
+  Eye,
+  Printer,
+  HeartHandshake,
+  Award
+} from 'lucide-react';
+
+// Translations Dictionary
+const TRANSLATIONS = {
+  en: {
+    appTitle: 'EduPortfolio Builder',
+    subtitle: 'MOE & ECDA e-Portfolio Generator',
+    pendingCount: 'Pending Portfolios',
+    teacher: 'Teacher Rachel',
+    bannerTitle: 'Quick Portfolio Workflow',
+    bannerDesc: 'Select a student with pending portfolios to open the ECDA template editor. Select photos from Monday cloud storage. Target creation speed: 5–10 mins per child.',
+    createNext: 'Create Next Portfolio',
+    allStudents: 'All Students',
+    pending: 'Pending',
+    completed: 'Completed',
+    autoTaggedTip: 'Auto-tagged with Monday Cloud Photos',
+    lastUpdated: 'Last Updated',
+    templatePages: '2 Template Pages',
+    createPortfolio: 'Create Portfolio',
+    editPortfolio: 'Edit Portfolio',
+    backToList: 'Back to Student List',
+    pageNav: 'Page Navigation',
+    page1Tab: 'Page 1: Numeracy & Motor',
+    page2Tab: 'Page 2: Chinese / Culture',
+    saveDraft: 'Save Draft',
+    previewBtn: 'Preview Portfolio',
+    publishBtn: 'Publish & Complete',
+    studentSheet: 'Student Learning Portfolio Sheet',
+    estimatedTime: 'Estimated time: ~5 mins',
+    primaryPhotoLabel: 'Primary Activity Photo (From Monday Cloud Library)',
+    changePhoto: 'Change Photo',
+    selectPhoto: 'Select Activity Photo',
+    chooseFromFolder: 'Choose from Monday Art & Craft Folder',
+    activityTitleLabel: 'Activity / Observation Title',
+    obsDateLabel: 'Observation Date',
+    learningAreaLabel: 'Learning Area(s)',
+    learningDispositionLabel: 'Learning Disposition',
+    learningObjectivesLabel: 'Learning Objective(s)',
+    contextLabel: 'Context & Activity Notes',
+    interpretationLabel: 'Interpretation & Teacher Analysis',
+    homePossibilitiesLabel: 'Opportunities & Possibilities at Home',
+    autoSuggest: 'Auto-Suggest Draft',
+    teacherTip: 'Photos selected here bypass the 30-day auto-expiry policy and persist permanently in child e-portfolio.',
+    zeroStorage: 'Zero-Local-Storage Encrypted Stream',
+    nextPage: 'Next: Page 2',
+    backToPage1: 'Back to Page 1',
+    libraryTitle: 'In-App Cloud Photo Library',
+    librarySub: 'Direct server photos taken by teachers (Zero mobile hardware storage)',
+    searchPlaceholder: 'Search label, title, day...',
+    allCategories: 'All Category Labels',
+    sortNewest: 'Sort: Newest First',
+    sortOldest: 'Sort: Oldest First',
+    sortTitle: 'Sort: By Title',
+    selectThisPhoto: 'Select Photo',
+    cancel: 'Cancel',
+    closePreview: 'Close Preview',
+    printExport: 'Print / Save as PDF',
+    previewCoverTitle: 'My e-Learning Portfolio',
+    previewTermHeader: 'Termly Child Learning Progress Update',
+    centreHeadMessage: 'Message from the Centre Head',
+    observedBy: 'Observed & written by',
+  },
+  zh: {
+    appTitle: '幼儿电子档案生成器',
+    subtitle: '符合 MOE & ECDA 标准的学前档案系统',
+    pendingCount: '待完成档案',
+    teacher: '张老师 (Teacher Rachel)',
+    bannerTitle: '高效档案建档流程',
+    bannerDesc: '选择待建档的幼儿，即可打开双页标准化模板。直接关联周一云端相册，目标每位幼儿 5–10 分钟快速建档。',
+    createNext: '开始下一个档案',
+    allStudents: '全部学生',
+    pending: '待处理',
+    completed: '已完成',
+    autoTaggedTip: '已自动标记周一活动云端照片',
+    lastUpdated: '最近更新',
+    templatePages: '2页标准模板',
+    createPortfolio: '建立个人档案',
+    editPortfolio: '编辑个人档案',
+    backToList: '返回学生列表',
+    pageNav: '页面导航',
+    page1Tab: '第1页：数概念与肢体发展',
+    page2Tab: '第2页：华文与文化探索',
+    saveDraft: '保存草稿',
+    previewBtn: '预览完整档案',
+    publishBtn: '发布并完成',
+    studentSheet: '幼儿学习进展报告单',
+    estimatedTime: '预计耗时：~5分钟',
+    primaryPhotoLabel: '主要活动照片（从周一云端相册选择）',
+    changePhoto: '更换照片',
+    selectPhoto: '选择活动照片',
+    chooseFromFolder: '从周一美劳活动文件夹选择',
+    activityTitleLabel: '活动 / 观察主题标题',
+    obsDateLabel: '观察日期',
+    learningAreaLabel: '学习领域',
+    learningDispositionLabel: '学习品质',
+    learningObjectivesLabel: '学习目标',
+    contextLabel: '观察情境与活动记录',
+    interpretationLabel: '分析与教师评估',
+    homePossibilitiesLabel: '可执行的家庭延伸活动',
+    autoSuggest: 'AI 自动生成草稿',
+    teacherTip: '在此选择的照片将自动解除30天过期的限制，永久保存于幼儿档案中。',
+    zeroStorage: '零本地存储加密直接传输',
+    nextPage: '下一页：第2页',
+    backToPage1: '返回第1页',
+    libraryTitle: '应用内云端相册',
+    librarySub: '教师直接拍摄上传至云端（不占用手机本地相册）',
+    searchPlaceholder: '搜索标签、标题、星期...',
+    allCategories: '所有分类标签',
+    sortNewest: '排序：最新优先',
+    sortOldest: '排序：较早优先',
+    sortTitle: '排序：按标题',
+    selectThisPhoto: '选择此照片',
+    cancel: '取消',
+    closePreview: '关闭预览',
+    printExport: '打印 / 导出PDF',
+    previewCoverTitle: '我的电子学习档案袋',
+    previewTermHeader: '幼儿学习进展报告',
+    centreHeadMessage: '园长的话',
+    observedBy: '观察与记录者',
+  }
+};
+
+// Mock Initial Data modeled after MOE Kindergarten / ECDA sample
+const INITIAL_STUDENTS = [
+  { id: 's1', name: 'Ona Neo', chineseName: '梁欧娜', class: 'K2 Graceful Tulip', age: '6 Yrs', status: 'pending', lastUpdated: '17 Aug 2026', avatar: 'https://images.unsplash.com/photo-1543332164-6e82f355badc?w=150&auto=format&fit=crop&q=80' },
+  { id: 's2', name: 'Lucas Tan', chineseName: '陈乐家', class: 'K2 Graceful Tulip', age: '5 Yrs', status: 'pending', lastUpdated: '16 Aug 2026', avatar: 'https://images.unsplash.com/photo-1595454812284-81788c227f2f?w=150&auto=format&fit=crop&q=80' },
+  { id: 's3', name: 'Sarah Lim', chineseName: '林思涵', class: 'K2 Graceful Tulip', age: '6 Yrs', status: 'completed', lastUpdated: '15 Aug 2026', avatar: 'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=150&auto=format&fit=crop&q=80' },
+  { id: 's4', name: 'Ethan Ahmad', chineseName: '艾森', class: 'K2 Graceful Tulip', age: '6 Yrs', status: 'pending', lastUpdated: '14 Aug 2026', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80' },
+  { id: 's5', name: 'Chloe Chen', chineseName: '陈诗婷', class: 'K2 Graceful Tulip', age: '5 Yrs', status: 'completed', lastUpdated: '12 Aug 2026', avatar: 'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=150&auto=format&fit=crop&q=80' },
+];
+
+const INITIAL_PHOTO_LIBRARY = [
+  { 
+    id: 'p1', 
+    title: 'Twine & Ribbon Length Measurement', 
+    label: 'Numeracy', 
+    day: 'Monday', 
+    date: '17 Aug 2026', 
+    studentId: 's1', 
+    url: 'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=600&auto=format&fit=crop&q=80' 
+  },
+  { 
+    id: 'p2', 
+    title: 'Flamingo Freeze Balance Exercise', 
+    label: 'Motor Skills', 
+    day: 'Monday', 
+    date: '17 Aug 2026', 
+    studentId: 's1', 
+    url: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&auto=format&fit=crop&q=80' 
+  },
+  { 
+    id: 'p3', 
+    title: 'Firefighter Roleplay - 消防员识字', 
+    label: 'Chinese Language', 
+    day: 'Tuesday', 
+    date: '18 Aug 2026', 
+    studentId: 's1', 
+    url: 'https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=600&auto=format&fit=crop&q=80' 
+  },
+  { 
+    id: 'p4', 
+    title: 'Sarong Design & Line Painting', 
+    label: 'Art & Craft', 
+    day: 'Monday', 
+    date: '17 Aug 2026', 
+    studentId: 's1', 
+    url: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&auto=format&fit=crop&q=80' 
+  },
+  { 
+    id: 'p5', 
+    title: 'Building Block Construction', 
+    label: 'Motor Skills', 
+    day: 'Monday', 
+    date: '17 Aug 2026', 
+    studentId: 's1', 
+    url: 'https://images.unsplash.com/photo-1588072432836-e10032774350?w=600&auto=format&fit=crop&q=80' 
+  },
+  { 
+    id: 'p6', 
+    title: 'Roll and Read Word Formation', 
+    label: 'Language & Literacy', 
+    day: 'Wednesday', 
+    date: '12 Aug 2026', 
+    studentId: 's1', 
+    url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80' 
+  },
+];
+
+export default function App() {
+  const [lang, setLang] = useState('en'); // 'en' or 'zh'
+  const t = TRANSLATIONS[lang];
+
+  const [students, setStudents] = useState(INITIAL_STUDENTS);
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'pending', 'completed'
+  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'editor'
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  
+  // 2-Page MOE Portfolio Form State
+  const [activePage, setActivePage] = useState(1);
+  const [portfolioData, setPortfolioData] = useState({
+    page1: {
+      photo: null,
+      activityTitle: 'I Am Growing Bigger - Measuring Lengths',
+      date: '17 Aug 2026',
+      learningAreas: 'Numeracy (数概念)',
+      disposition: 'Engagement (专注投入)',
+      objectives: 'Compare lengths of objects and arrange them from shortest to longest.',
+      context: 'Ona was provided with 3 items of clothing and twine. She measured each clothing using twine and cut it according to size. Afterwards, she arranged the twines along a common baseline and shared: "This is shortest from socks, this is longest from pants."',
+      interpretation: 'Ona accurately compared and arranged twines by length. Showed high engagement in independent measurement.',
+      homePossibilities: 'Parents may continue playing length-matching games using household items like utensils or socks.',
+      teacherName: 'Ms Gwendolyn'
+    },
+    page2: {
+      photo: null,
+      activityTitle: '消防员 (Firefighter Roleplay & Chinese Character Writing)',
+      date: '18 Aug 2026',
+      learningAreas: '语言与书写能力 - 读、写 (Language & Literacy)',
+      disposition: 'Curiosity (好奇心)',
+      objectives: '1. 识读词语“火”并按笔顺书写。 2. 拓展词语“火” (如火灾、灭火)。',
+      context: '欧娜翻开大图书找出“火”字并读出：“小熊的家发生了火灾。”在角色扮演中，她戴上消防员帽子兴奋地说：“我来救火！”随后用黏土拼出“火”字笔画，并按顺序书写。',
+      interpretation: '欧娜借助词卡能独立识读并拼写“火”字。在角色扮演中展现极高的口语表达自信与创造力。',
+      homePossibilities: '家长可以和欧娜一起阅读消防员相关绘本（如《小小消防员》），增强消防安全意识及华词积累。',
+      teacherName: '徐老师 (Xu Lao Shi)'
+    }
+  });
+
+  // Photo Library Drawer State
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [targetPhotoSlot, setTargetPhotoSlot] = useState(null); // 'page1' or 'page2'
+  const [photoSearch, setPhotoSearch] = useState('');
+  const [photoFilterLabel, setPhotoFilterLabel] = useState('All');
+  const [photoSortOrder, setPhotoSortOrder] = useState('newest');
+
+  // Filter Students
+  const filteredStudents = students.filter(s => {
+    if (activeTab === 'pending') return s.status === 'pending';
+    if (activeTab === 'completed') return s.status === 'completed';
+    return true;
+  });
+
+  const pendingCount = students.filter(s => s.status === 'pending').length;
+
+  const handleStartPortfolio = (student) => {
+    setSelectedStudent(student);
+    setActivePage(1);
+    setPortfolioData({
+      page1: {
+        photo: INITIAL_PHOTO_LIBRARY[0],
+        activityTitle: `${student.name} - Measuring Lengths & Quantities`,
+        date: '17 Aug 2026',
+        learningAreas: 'Numeracy (数概念)',
+        disposition: 'Engagement (专注投入)',
+        objectives: 'Compare lengths of objects and arrange them from shortest to longest.',
+        context: `${student.name} measured clothing using twine and cut it to scale. Arranged twines on a baseline and described findings: "This is shortest, this is longest!"`,
+        interpretation: 'Demonstrates clear understanding of relative measurements and fine motor scissor coordination.',
+        homePossibilities: 'Encourage child to compare lengths of family shoes or books at home.',
+        teacherName: 'Ms Gwendolyn'
+      },
+      page2: {
+        photo: INITIAL_PHOTO_LIBRARY[2],
+        activityTitle: `消防员与识字 - ${student.chineseName}`,
+        date: '18 Aug 2026',
+        learningAreas: '语言与书写能力 (Language & Literacy)',
+        disposition: 'Curiosity (好奇心)',
+        objectives: '1. 识读词语“火”并按笔顺书写。 2. 拓展词语“火”。',
+        context: `${student.chineseName} 翻开大图书识读“火”字，并在角色扮演中模仿消防员救火。使用黏土拼出“火”字笔顺。`,
+        interpretation: '对华文学习保持高度兴趣，能独立完成书写并流利表达见解。',
+        homePossibilities: '建议家长与幼儿一起阅读中文绘本，延伸讨论生活中的安全常识。',
+        teacherName: '徐老师 (Xu Lao Shi)'
+      }
+    });
+    setCurrentView('editor');
+  };
+
+  const openPhotoLibrary = (slot) => {
+    setTargetPhotoSlot(slot);
+    setIsPhotoModalOpen(true);
+  };
+
+  const handleSelectPhoto = (photo) => {
+    setPortfolioData(prev => ({
+      ...prev,
+      [targetPhotoSlot]: {
+        ...prev[targetPhotoSlot],
+        photo: photo
+      }
+    }));
+    setIsPhotoModalOpen(false);
+  };
+
+  const handleSavePortfolio = (markComplete = false) => {
+    if (markComplete && selectedStudent) {
+      setStudents(prev => prev.map(s => 
+        s.id === selectedStudent.id ? { ...s, status: 'completed', lastUpdated: 'Today' } : s
+      ));
+    }
+    alert(markComplete 
+      ? (lang === 'zh' ? `幼儿 ${selectedStudent.name} 的档案已发布成功！` : `Portfolio for ${selectedStudent.name} published successfully!`)
+      : (lang === 'zh' ? '草稿已保存！' : 'Draft saved successfully!')
+    );
+    if (markComplete) {
+      setCurrentView('dashboard');
+    }
+  };
+
+  const filteredPhotos = INITIAL_PHOTO_LIBRARY
+    .filter(photo => {
+      const matchesSearch = photo.title.toLowerCase().includes(photoSearch.toLowerCase()) || 
+                            photo.label.toLowerCase().includes(photoSearch.toLowerCase()) ||
+                            photo.day.toLowerCase().includes(photoSearch.toLowerCase());
+      const matchesLabel = photoFilterLabel === 'All' || photo.label === photoFilterLabel;
+      return matchesSearch && matchesLabel;
+    })
+    .sort((a, b) => {
+      if (photoSortOrder === 'newest') return b.id.localeCompare(a.id);
+      if (photoSortOrder === 'oldest') return a.id.localeCompare(b.id);
+      return a.title.localeCompare(b.title);
+    });
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+      {/* Top Header */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="bg-indigo-600 text-white p-2 rounded-lg">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900 leading-none">{t.appTitle}</h1>
+              <p className="text-xs text-slate-500 mt-1">{t.subtitle} • K2 Graceful Tulip</p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {/* Language Switcher */}
+            <button
+              onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
+              className="inline-flex items-center px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 text-xs font-semibold shadow-sm transition space-x-1.5"
+            >
+              <Globe className="w-3.5 h-3.5 text-indigo-600" />
+              <span>{lang === 'en' ? '中文 (Simplified)' : 'English'}</span>
+            </button>
+
+            <div className="h-4 w-[1px] bg-slate-200"></div>
+
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+              <Clock className="w-3.5 h-3.5 mr-1" />
+              {pendingCount} {t.pendingCount}
+            </span>
+
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-semibold flex items-center justify-center text-xs border border-indigo-200">
+                TR
+              </div>
+              <span className="text-xs font-medium text-slate-700 hidden sm:inline-block">{t.teacher}</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Workspace */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        {/* VIEW 1: DASHBOARD */}
+        {currentView === 'dashboard' && (
+          <div className="space-y-6">
+            {/* Banner */}
+            <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-700 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Award className="w-5 h-5 text-amber-300" />
+                  {t.bannerTitle}
+                </h2>
+                <p className="text-indigo-200 text-sm mt-1 max-w-2xl">
+                  {t.bannerDesc}
+                </p>
+              </div>
+              <button 
+                onClick={() => {
+                  const firstPending = students.find(s => s.status === 'pending') || students[0];
+                  handleStartPortfolio(firstPending);
+                }}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm shadow-sm transition flex items-center justify-center space-x-2 shrink-0 self-start md:self-auto"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{t.createNext}</span>
+              </button>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setActiveTab('all')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    activeTab === 'all'
+                      ? 'bg-slate-900 text-white'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  {t.allStudents} ({students.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab('pending')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5 ${
+                    activeTab === 'pending'
+                      ? 'bg-amber-600 text-white'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <span>{t.pending}</span>
+                  <span className="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                    {pendingCount}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('completed')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    activeTab === 'completed'
+                      ? 'bg-emerald-600 text-white'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  {t.completed} ({students.length - pendingCount})
+                </button>
+              </div>
+
+              <div className="text-xs text-slate-500 flex items-center space-x-1">
+                <Tag className="w-3.5 h-3.5 text-indigo-500" />
+                <span>{t.autoTaggedTip}</span>
+              </div>
+            </div>
+
+            {/* Student Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredStudents.map((student) => {
+                const isPending = student.status === 'pending';
+                return (
+                  <div 
+                    key={student.id} 
+                    className={`bg-white rounded-xl border p-5 shadow-sm transition hover:shadow-md flex flex-col justify-between ${
+                      isPending ? 'border-amber-200 bg-amber-50/10' : 'border-slate-200'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-3">
+                          <img 
+                            src={student.avatar} 
+                            alt={student.name}
+                            className="w-12 h-12 rounded-full object-cover border border-slate-200"
+                          />
+                          <div>
+                            <h3 className="font-bold text-slate-900">{student.name} <span className="text-indigo-600 text-sm font-normal">({student.chineseName})</span></h3>
+                            <p className="text-xs text-slate-500">{student.class} • {student.age}</p>
+                          </div>
+                        </div>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          isPending 
+                            ? 'bg-amber-100 text-amber-800 border border-amber-200' 
+                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                        }`}>
+                          {isPending ? t.pending : t.completed}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                        <span>{t.lastUpdated}: {student.lastUpdated}</span>
+                        <span className="font-medium text-slate-700">{t.templatePages}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-5">
+                      <button
+                        onClick={() => handleStartPortfolio(student)}
+                        className={`w-full py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center space-x-2 transition ${
+                          isPending
+                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm'
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        <FileText className="w-4 h-4" />
+                        <span>{isPending ? t.createPortfolio : t.editPortfolio}</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* VIEW 2: 2-PAGE MOE/ECDA PORTFOLIO EDITOR */}
+        {currentView === 'editor' && selectedStudent && (
+          <div className="space-y-6">
+            {/* Top Toolbar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+              <button 
+                onClick={() => setCurrentView('dashboard')}
+                className="inline-flex items-center text-xs font-semibold text-slate-600 hover:text-slate-900 transition"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1.5" />
+                {t.backToList}
+              </button>
+
+              <div className="flex items-center space-x-2">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">{t.pageNav}:</span>
+                <button
+                  onClick={() => setActivePage(1)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    activePage === 1
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  {t.page1Tab}
+                </button>
+                <button
+                  onClick={() => setActivePage(2)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    activePage === 2
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  {t.page2Tab}
+                </button>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handleSavePortfolio(false)}
+                  className="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition flex items-center space-x-1"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{t.saveDraft}</span>
+                </button>
+                <button
+                  onClick={() => setIsPreviewOpen(true)}
+                  className="px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-semibold transition flex items-center space-x-1.5"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>{t.previewBtn}</span>
+                </button>
+                <button
+                  onClick={() => handleSavePortfolio(true)}
+                  className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center space-x-1.5 shadow-sm"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{t.publishBtn}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Template Form Card */}
+            <div className="bg-slate-200/60 p-4 sm:p-8 rounded-2xl border border-slate-300 flex justify-center">
+              <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg border border-slate-200 p-6 sm:p-10 min-h-[650px] flex flex-col justify-between">
+                
+                {/* Document Header */}
+                <div className="border-b border-slate-200 pb-4 mb-6 flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <img 
+                      src={selectedStudent.avatar} 
+                      alt={selectedStudent.name} 
+                      className="w-10 h-10 rounded-full object-cover border border-slate-300"
+                    />
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-base leading-snug">{selectedStudent.name} ({selectedStudent.chineseName})</h3>
+                      <p className="text-xs text-slate-500">{t.studentSheet} • {selectedStudent.class}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="inline-block px-2.5 py-0.5 rounded text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                      MOE / ECDA Standard
+                    </span>
+                    <p className="text-[10px] text-slate-400 mt-1">{t.estimatedTime}</p>
+                  </div>
+                </div>
+
+                {/* PAGE 1 FORM */}
+                {activePage === 1 && (
+                  <div className="space-y-5 flex-1">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                      {/* Photo Area */}
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2">
+                          {t.primaryPhotoLabel}
+                        </label>
+                        {portfolioData.page1.photo ? (
+                          <div className="relative group rounded-xl overflow-hidden border-2 border-slate-200 shadow-sm">
+                            <img 
+                              src={portfolioData.page1.photo.url} 
+                              alt="Activity" 
+                              className="w-full h-52 object-cover"
+                            />
+                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                              <button 
+                                onClick={() => openPhotoLibrary('page1')}
+                                className="bg-white text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg shadow hover:bg-slate-100 transition flex items-center space-x-1"
+                              >
+                                <ImageIcon className="w-3.5 h-3.5" />
+                                <span>{t.changePhoto}</span>
+                              </button>
+                            </div>
+                            <div className="absolute bottom-2 left-2 bg-slate-900/70 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm">
+                              {portfolioData.page1.photo.label} • {portfolioData.page1.photo.day}
+                            </div>
+                          </div>
+                        ) : (
+                          <div 
+                            onClick={() => openPhotoLibrary('page1')}
+                            className="w-full h-52 border-2 border-dashed border-indigo-300 rounded-xl bg-indigo-50/40 hover:bg-indigo-50 transition cursor-pointer flex flex-col items-center justify-center p-4 text-center group"
+                          >
+                            <div className="p-3 rounded-full bg-white shadow-sm border border-indigo-100 group-hover:scale-110 transition">
+                              <ImageIcon className="w-6 h-6 text-indigo-600" />
+                            </div>
+                            <span className="mt-2 text-xs font-bold text-indigo-900">{t.selectPhoto}</span>
+                            <span className="text-[11px] text-indigo-600 mt-0.5">{t.chooseFromFolder}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Header Inputs */}
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                            {t.activityTitleLabel}
+                          </label>
+                          <input 
+                            type="text"
+                            value={portfolioData.page1.activityTitle}
+                            onChange={(e) => setPortfolioData(prev => ({
+                              ...prev,
+                              page1: { ...prev.page1, activityTitle: e.target.value }
+                            }))}
+                            className="w-full text-xs font-semibold border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                              {t.learningAreaLabel}
+                            </label>
+                            <input 
+                              type="text"
+                              value={portfolioData.page1.learningAreas}
+                              onChange={(e) => setPortfolioData(prev => ({
+                                ...prev,
+                                page1: { ...prev.page1, learningAreas: e.target.value }
+                              }))}
+                              className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                              {t.learningDispositionLabel}
+                            </label>
+                            <input 
+                              type="text"
+                              value={portfolioData.page1.disposition}
+                              onChange={(e) => setPortfolioData(prev => ({
+                                ...prev,
+                                page1: { ...prev.page1, disposition: e.target.value }
+                              }))}
+                              className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                            {t.learningObjectivesLabel}
+                          </label>
+                          <input 
+                            type="text"
+                            value={portfolioData.page1.objectives}
+                            onChange={(e) => setPortfolioData(prev => ({
+                              ...prev,
+                              page1: { ...prev.page1, objectives: e.target.value }
+                            }))}
+                            className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Context & Interpretation */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                          {t.contextLabel}
+                        </label>
+                        <button 
+                          onClick={() => setPortfolioData(prev => ({
+                            ...prev,
+                            page1: {
+                              ...prev.page1,
+                              context: `${selectedStudent.name} measured 3 items using twine. She cut the twine accurately according to clothing length and arranged them from shortest to longest along a common baseline.`
+                            }
+                          }))}
+                          className="text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold flex items-center space-x-1"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          <span>{t.autoSuggest}</span>
+                        </button>
+                      </div>
+                      <textarea
+                        rows={3}
+                        value={portfolioData.page1.context}
+                        onChange={(e) => setPortfolioData(prev => ({
+                          ...prev,
+                          page1: { ...prev.page1, context: e.target.value }
+                        }))}
+                        className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none leading-relaxed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        {t.interpretationLabel}
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={portfolioData.page1.interpretation}
+                        onChange={(e) => setPortfolioData(prev => ({
+                          ...prev,
+                          page1: { ...prev.page1, interpretation: e.target.value }
+                        }))}
+                        className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none leading-relaxed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        {t.homePossibilitiesLabel}
+                      </label>
+                      <input 
+                        type="text"
+                        value={portfolioData.page1.homePossibilities}
+                        onChange={(e) => setPortfolioData(prev => ({
+                          ...prev,
+                          page1: { ...prev.page1, homePossibilities: e.target.value }
+                        }))}
+                        className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-emerald-50/30"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* PAGE 2 FORM (CHINESE / CULTURE FOCUS) */}
+                {activePage === 2 && (
+                  <div className="space-y-5 flex-1">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                      {/* Photo Slot */}
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2">
+                          {t.primaryPhotoLabel}
+                        </label>
+                        {portfolioData.page2.photo ? (
+                          <div className="relative group rounded-xl overflow-hidden border-2 border-slate-200 shadow-sm">
+                            <img 
+                              src={portfolioData.page2.photo.url} 
+                              alt="Activity" 
+                              className="w-full h-52 object-cover"
+                            />
+                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                              <button 
+                                onClick={() => openPhotoLibrary('page2')}
+                                className="bg-white text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg shadow hover:bg-slate-100 transition flex items-center space-x-1"
+                              >
+                                <ImageIcon className="w-3.5 h-3.5" />
+                                <span>{t.changePhoto}</span>
+                              </button>
+                            </div>
+                            <div className="absolute bottom-2 left-2 bg-slate-900/70 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm">
+                              {portfolioData.page2.photo.label} • {portfolioData.page2.photo.day}
+                            </div>
+                          </div>
+                        ) : (
+                          <div 
+                            onClick={() => openPhotoLibrary('page2')}
+                            className="w-full h-52 border-2 border-dashed border-indigo-300 rounded-xl bg-indigo-50/40 hover:bg-indigo-50 transition cursor-pointer flex flex-col items-center justify-center p-4 text-center group"
+                          >
+                            <div className="p-3 rounded-full bg-white shadow-sm border border-indigo-100 group-hover:scale-110 transition">
+                              <ImageIcon className="w-6 h-6 text-indigo-600" />
+                            </div>
+                            <span className="mt-2 text-xs font-bold text-indigo-900">{t.selectPhoto}</span>
+                            <span className="text-[11px] text-indigo-600 mt-0.5">{t.chooseFromFolder}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Header Inputs */}
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                            {t.activityTitleLabel}
+                          </label>
+                          <input 
+                            type="text"
+                            value={portfolioData.page2.activityTitle}
+                            onChange={(e) => setPortfolioData(prev => ({
+                              ...prev,
+                              page2: { ...prev.page2, activityTitle: e.target.value }
+                            }))}
+                            className="w-full text-xs font-semibold border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                              {t.learningAreaLabel}
+                            </label>
+                            <input 
+                              type="text"
+                              value={portfolioData.page2.learningAreas}
+                              onChange={(e) => setPortfolioData(prev => ({
+                                ...prev,
+                                page2: { ...prev.page2, learningAreas: e.target.value }
+                              }))}
+                              className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                              {t.learningDispositionLabel}
+                            </label>
+                            <input 
+                              type="text"
+                              value={portfolioData.page2.disposition}
+                              onChange={(e) => setPortfolioData(prev => ({
+                                ...prev,
+                                page2: { ...prev.page2, disposition: e.target.value }
+                              }))}
+                              className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                            {t.learningObjectivesLabel}
+                          </label>
+                          <input 
+                            type="text"
+                            value={portfolioData.page2.objectives}
+                            onChange={(e) => setPortfolioData(prev => ({
+                              ...prev,
+                              page2: { ...prev.page2, objectives: e.target.value }
+                            }))}
+                            className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        {t.contextLabel}
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={portfolioData.page2.context}
+                        onChange={(e) => setPortfolioData(prev => ({
+                          ...prev,
+                          page2: { ...prev.page2, context: e.target.value }
+                        }))}
+                        className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none leading-relaxed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        {t.interpretationLabel}
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={portfolioData.page2.interpretation}
+                        onChange={(e) => setPortfolioData(prev => ({
+                          ...prev,
+                          page2: { ...prev.page2, interpretation: e.target.value }
+                        }))}
+                        className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none leading-relaxed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        {t.homePossibilitiesLabel}
+                      </label>
+                      <input 
+                        type="text"
+                        value={portfolioData.page2.homePossibilities}
+                        onChange={(e) => setPortfolioData(prev => ({
+                          ...prev,
+                          page2: { ...prev.page2, homePossibilities: e.target.value }
+                        }))}
+                        className="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-emerald-50/30"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Footer Controls */}
+                <div className="border-t border-slate-200 pt-4 mt-6 flex items-center justify-between text-xs text-slate-500">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>{t.zeroStorage}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    {activePage === 1 ? (
+                      <button
+                        onClick={() => setActivePage(2)}
+                        className="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-lg transition flex items-center space-x-1"
+                      >
+                        <span>{t.nextPage}</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setActivePage(1)}
+                        className="border border-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg hover:bg-slate-50 transition"
+                      >
+                        {t.backToPage1}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* FULL PORTFOLIO PREVIEW MODAL (STYLED LIKE THE OFFICIAL MOE / ECDA DOCUMENT) */}
+      {isPreviewOpen && selectedStudent && (
+        <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 overflow-y-auto">
+          <div className="bg-slate-100 w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-300 flex flex-col max-h-[92vh] overflow-hidden my-auto">
+            
+            {/* Modal Navigation */}
+            <div className="p-4 border-b border-slate-200 bg-white flex items-center justify-between shrink-0">
+              <div className="flex items-center space-x-2">
+                <span className="font-bold text-slate-900 text-sm">{t.previewBtn}: {selectedStudent.name}</span>
+                <span className="text-xs text-slate-400">({selectedStudent.class})</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => window.print()}
+                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition flex items-center space-x-1.5 shadow-sm"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>{t.printExport}</span>
+                </button>
+                <button
+                  onClick={() => setIsPreviewOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Printable Portfolio Pages Container */}
+            <div className="p-4 sm:p-8 overflow-y-auto space-y-8 flex-1 bg-slate-200/80">
+              
+              {/* PAGE 1: COVER PAGE (MOE Kindergarten Style) */}
+              <div className="bg-white border border-slate-300 rounded-xl p-8 sm:p-12 shadow-sm min-h-[700px] flex flex-col justify-between text-slate-800 relative">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 rounded-full bg-teal-500 text-white font-black flex items-center justify-center text-xs">
+                        MOE
+                      </div>
+                      <span className="font-extrabold text-sm tracking-wider text-teal-800">MOE KINDERGARTEN @ PUNGGOL GREEN</span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">e-Portfolio 2026</span>
+                </div>
+
+                <div className="my-8 text-center space-y-4">
+                  <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t.previewCoverTitle}</h1>
+                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Kindergarten 2 • {selectedStudent.class}</p>
+                  
+                  <div className="inline-block relative p-2 bg-teal-50 rounded-2xl border border-teal-100 mt-4">
+                    <img 
+                      src={selectedStudent.avatar} 
+                      alt={selectedStudent.name}
+                      className="w-36 h-36 rounded-xl object-cover shadow-sm mx-auto"
+                    />
+                    <div className="mt-3 bg-white py-1.5 px-4 rounded-xl border border-teal-200 shadow-xs inline-block">
+                      <p className="font-bold text-base text-slate-900">{selectedStudent.name}</p>
+                      <p className="font-semibold text-sm text-teal-700">{selectedStudent.chineseName}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Message from Centre Head */}
+                <div className="bg-slate-50 rounded-xl p-5 border border-slate-200 text-xs leading-relaxed text-slate-600 space-y-2">
+                  <p className="font-bold text-slate-800">{t.centreHeadMessage}:</p>
+                  <p>
+                    "A child's capacity for learning in his/her preschool years is boundless. Our teachers at MOE Kindergarten are committed to nurturing competent learners who are confident and eager to learn."
+                  </p>
+                  <p className="font-semibold text-slate-700 text-right pt-2">— Ms Michelle J Thomas (Centre Head)</p>
+                </div>
+              </div>
+
+              {/* PAGE 2: TERM 1 UPDATE (Numeracy / English) */}
+              <div className="bg-white border border-slate-300 rounded-xl p-6 sm:p-10 shadow-sm min-h-[700px] flex flex-col justify-between space-y-6">
+                <div>
+                  <div className="border-b-2 border-teal-500 pb-3 flex justify-between items-end">
+                    <div>
+                      <p className="text-[10px] font-bold text-teal-700 uppercase tracking-widest">{t.previewTermHeader} (Term 1)</p>
+                      <h2 className="text-xl font-bold text-slate-900">{portfolioData.page1.activityTitle}</h2>
+                    </div>
+                    <span className="text-xs font-semibold text-slate-500">{selectedStudent.name} ({selectedStudent.class})</span>
+                  </div>
+
+                  {/* Photo & Details Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    {portfolioData.page1.photo && (
+                      <div>
+                        <img 
+                          src={portfolioData.page1.photo.url} 
+                          alt="Observation" 
+                          className="w-full h-56 object-cover rounded-xl border border-slate-200 shadow-sm"
+                        />
+                        <p className="text-[10px] text-slate-400 mt-1 italic text-center">Photo recorded during class observation activity</p>
+                      </div>
+                    )}
+
+                    <div className="space-y-2 text-xs">
+                      <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                        <span className="font-bold text-slate-800">Learning Area(s): </span>
+                        <span className="text-slate-600">{portfolioData.page1.learningAreas}</span>
+                      </div>
+                      <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                        <span className="font-bold text-slate-800">Learning Disposition: </span>
+                        <span className="text-slate-600">{portfolioData.page1.disposition}</span>
+                      </div>
+                      <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                        <span className="font-bold text-slate-800">Learning Objective(s): </span>
+                        <span className="text-slate-600">{portfolioData.page1.objectives}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Context & Interpretation */}
+                  <div className="mt-6 space-y-4 text-xs">
+                    <div>
+                      <h4 className="font-bold text-slate-900 border-l-4 border-teal-500 pl-2 mb-1">Context / 情境:</h4>
+                      <p className="bg-slate-50/80 p-3 rounded-lg border border-slate-200 leading-relaxed text-slate-700">{portfolioData.page1.context}</p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-slate-900 border-l-4 border-indigo-500 pl-2 mb-1">Interpretation & Analysis / 分析:</h4>
+                      <p className="bg-slate-50/80 p-3 rounded-lg border border-slate-200 leading-relaxed text-slate-700">{portfolioData.page1.interpretation}</p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-slate-900 border-l-4 border-amber-500 pl-2 mb-1">Opportunities at Home / 可执行活动:</h4>
+                      <p className="bg-amber-50/60 p-3 rounded-lg border border-amber-200/60 leading-relaxed text-amber-900">{portfolioData.page1.homePossibilities}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-400">
+                  <span>{t.observedBy}: {portfolioData.page1.teacherName || t.teacher}</span>
+                  <span>Page 2 of 3</span>
+                </div>
+              </div>
+
+              {/* PAGE 3: CHINESE LEARNING UPDATE */}
+              <div className="bg-white border border-slate-300 rounded-xl p-6 sm:p-10 shadow-sm min-h-[700px] flex flex-col justify-between space-y-6">
+                <div>
+                  <div className="border-b-2 border-indigo-500 pb-3 flex justify-between items-end">
+                    <div>
+                      <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-widest">幼儿学习进展报告 (第二学段 / Term 2)</p>
+                      <h2 className="text-xl font-bold text-slate-900">{portfolioData.page2.activityTitle}</h2>
+                    </div>
+                    <span className="text-xs font-semibold text-slate-500">{selectedStudent.chineseName} ({selectedStudent.class})</span>
+                  </div>
+
+                  {/* Photo & Details Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    {portfolioData.page2.photo && (
+                      <div>
+                        <img 
+                          src={portfolioData.page2.photo.url} 
+                          alt="Chinese Activity" 
+                          className="w-full h-56 object-cover rounded-xl border border-slate-200 shadow-sm"
+                        />
+                        <p className="text-[10px] text-slate-400 mt-1 italic text-center">华文学习与角色扮演观察照片</p>
+                      </div>
+                    )}
+
+                    <div className="space-y-2 text-xs">
+                      <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                        <span className="font-bold text-slate-800">学习领域: </span>
+                        <span className="text-slate-600">{portfolioData.page2.learningAreas}</span>
+                      </div>
+                      <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                        <span className="font-bold text-slate-800">学习品质: </span>
+                        <span className="text-slate-600">{portfolioData.page2.disposition}</span>
+                      </div>
+                      <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                        <span className="font-bold text-slate-800">学习目标: </span>
+                        <span className="text-slate-600">{portfolioData.page2.objectives}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Context & Analysis */}
+                  <div className="mt-6 space-y-4 text-xs">
+                    <div>
+                      <h4 className="font-bold text-slate-900 border-l-4 border-indigo-500 pl-2 mb-1">观察记录 (Context):</h4>
+                      <p className="bg-slate-50/80 p-3 rounded-lg border border-slate-200 leading-relaxed text-slate-700">{portfolioData.page2.context}</p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-slate-900 border-l-4 border-emerald-500 pl-2 mb-1">教师分析 (Interpretation):</h4>
+                      <p className="bg-slate-50/80 p-3 rounded-lg border border-slate-200 leading-relaxed text-slate-700">{portfolioData.page2.interpretation}</p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-slate-900 border-l-4 border-amber-500 pl-2 mb-1">家庭延伸活动 (Opportunities at Home):</h4>
+                      <p className="bg-amber-50/60 p-3 rounded-lg border border-amber-200/60 leading-relaxed text-amber-900">{portfolioData.page2.homePossibilities}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-400">
+                  <span>{t.observedBy}: {portfolioData.page2.teacherName || '徐老师'}</span>
+                  <span>Page 3 of 3</span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Preview Modal Footer */}
+            <div className="p-4 border-t border-slate-200 bg-white flex justify-between items-center shrink-0">
+              <span className="text-xs text-slate-500">Official e-Portfolio Document Ready for Distribution</span>
+              <button
+                onClick={() => setIsPreviewOpen(false)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition"
+              >
+                {t.closePreview}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* IN-APP CLOUD PHOTO LIBRARY DRAWER MODAL */}
+      {isPhotoModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 flex flex-col max-h-[85vh] overflow-hidden">
+            
+            {/* Modal Header */}
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">{t.libraryTitle}</h3>
+                <p className="text-xs text-slate-500">{t.librarySub}</p>
+              </div>
+              <button 
+                onClick={() => setIsPhotoModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-200/50 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Filter, Search & Sort Bar */}
+            <div className="p-4 border-b border-slate-200 bg-white grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="relative">
+                <input 
+                  type="text"
+                  placeholder={t.searchPlaceholder}
+                  value={photoSearch}
+                  onChange={(e) => setPhotoSearch(e.target.value)}
+                  className="w-full text-xs border border-slate-300 rounded-lg p-2.5 pl-8 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                />
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-3" />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Filter className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <select
+                  value={photoFilterLabel}
+                  onChange={(e) => setPhotoFilterLabel(e.target.value)}
+                  className="w-full text-xs font-medium border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
+                >
+                  <option value="All">{t.allCategories}</option>
+                  <option value="Numeracy">Numeracy (数概念)</option>
+                  <option value="Motor Skills">Motor Skills (肢体发展)</option>
+                  <option value="Chinese Language">Chinese Language (华文与文化)</option>
+                  <option value="Art & Craft">Art & Craft (美劳)</option>
+                  <option value="Language & Literacy">Language & Literacy (语言识字)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <select
+                  value={photoSortOrder}
+                  onChange={(e) => setPhotoSortOrder(e.target.value)}
+                  className="w-full text-xs font-medium border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
+                >
+                  <option value="newest">{t.sortNewest}</option>
+                  <option value="oldest">{t.sortOldest}</option>
+                  <option value="title">{t.sortTitle}</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Photo Grid */}
+            <div className="p-5 overflow-y-auto flex-1 grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {filteredPhotos.map((photo) => (
+                <div 
+                  key={photo.id}
+                  onClick={() => handleSelectPhoto(photo)}
+                  className="group relative border border-slate-200 rounded-xl overflow-hidden cursor-pointer hover:border-indigo-600 transition shadow-sm hover:shadow-md bg-slate-50"
+                >
+                  <img 
+                    src={photo.url} 
+                    alt={photo.title}
+                    className="w-full h-36 object-cover group-hover:scale-105 transition duration-200"
+                  />
+                  <div className="p-2.5 bg-white border-t border-slate-100">
+                    <p className="text-xs font-bold text-slate-800 truncate">{photo.title}</p>
+                    <div className="flex items-center justify-between mt-1 text-[10px] text-slate-500">
+                      <span className="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-medium border border-indigo-100">
+                        {photo.label}
+                      </span>
+                      <span>{photo.day}</span>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 bg-indigo-600/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                    <span className="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-lg shadow">
+                      {t.selectThisPhoto}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
+              <span>Showing {filteredPhotos.length} photos ready for portfolio tagging</span>
+              <button
+                onClick={() => setIsPhotoModalOpen(false)}
+                className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-white font-medium transition"
+              >
+                {t.cancel}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
